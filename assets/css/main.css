@@ -1,0 +1,151 @@
+/* iranflix/assets/css/main.css */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    direction: rtl;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary font-vazir;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0D0D0D;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #E50914;
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid #E50914;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Cinema strip scrollable row */
+  .cinema-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-block: 1rem;
+    padding-inline: 1rem;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0D0D0D;
+    direction: rtl;
+  }
+
+  .cinema-row::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  /* Movie card cinema-strip hover */
+  .movie-card {
+    flex-shrink: 0;
+    position: relative;
+    cursor: pointer;
+    transition: transform 250ms ease, box-shadow 250ms ease;
+    transform-origin: center bottom;
+    will-change: transform;
+  }
+
+  .movie-card:hover {
+    transform: scale(1.08) rotate(-2deg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+    z-index: 10;
+  }
+
+  /* Skeleton shimmer */
+  .skeleton {
+    background: linear-gradient(90deg, #1A1A1A 25%, #242424 50%, #1A1A1A 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  /* RTL input */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select {
+    direction: rtl;
+    text-align: right;
+  }
+
+  /* Page transitions */
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.25s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  /* RTL flip for directional icons */
+  .rtl-flip {
+    transform: scaleX(-1);
+  }
+
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+   
+  }
+
+  .backdrop-cinema {
+    backdrop-filter: blur(8px) saturate(1.2);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .movie-card:hover {
+    transform: none;
+  }
+}
+.movie-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem; /* فضای کافی برای hover */
+  scroll-behavior: smooth;
+}
