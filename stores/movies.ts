@@ -23,7 +23,26 @@ export interface Movie {
   language: string
 }
 
+export interface MovieOverrides {
+  added: Movie[]
+  edited: Record<number, Movie>
+  deleted: number[]
+}
+
+const OVERRIDES_KEY = 'iranflix_movies_overrides_v1'
+let baseCache: Movie[] = []
+
+async function getBase(): Promise<Movie[]> {
+  if (baseCache.length === 0) {
+    const { default: data } = await import('../data/movies.json')
+    baseCache = data as Movie[]
+  }
+  return baseCache
+}
+
 interface MoviesState {
+  overrides: MovieOverrides
+  clientReady: boolean
   all: Movie[]
   featured: Movie | null
   rows: Record<string, Movie[]>
@@ -35,6 +54,8 @@ interface MoviesState {
 
 export const useMoviesStore = defineStore('movies', {
   state: (): MoviesState => ({
+    overrides: { added: [], edited: {}, deleted: [] },
+    clientReady: false,
     all: [],
     featured: null,
     rows: {},
@@ -50,6 +71,10 @@ export const useMoviesStore = defineStore('movies', {
       state.all.filter(m => m.category.includes(category)),
     onlyMovies: (state) => state.all.filter(m => m.type === 'movie'),
     onlySeries: (state) => state.all.filter(m => m.type === 'series'),
+    hasOverrides: (state) =>
+      state.overrides.added.length > 0 ||
+      state.overrides.deleted.length > 0 ||
+      Object.keys(state.overrides.edited).length > 0,
   },
 
   actions: {
@@ -59,14 +84,95 @@ export const useMoviesStore = defineStore('movies', {
       this.loading = true
       try {
         // دیتا مستقیم import می‌شود (هم روی سرور هم کلاینت کار می‌کند، بدون درخواست شبکه)
-        const { default: data } = await import('../data/movies.json')
-        this.all = data as Movie[]
-        this._buildState()
+        await getBase()
+        this._readOverrides()
+        this._compose()
+        if (import.meta.client) this.clientReady = true
       } catch (e) {
         console.error('Failed to load movies:', e)
       } finally {
         this.loading = false
       }
+    },
+
+    // بعد از hydrate شدن روی کلاینت، تغییرات پنل ادمین (localStorage) را اعمال می‌کند
+    async initClient() {
+      if (!import.meta.client || this.clientReady) return
+      await getBase()
+      this._readOverrides()
+      this._compose()
+      this.clientReady = true
+    },
+
+    async ensureReady() {
+      await this.loadAll()
+      await this.initClient()
+    },
+
+    _readOverrides() {
+      if (!import.meta.client) return
+      try {
+        const raw = localStorage.getItem(OVERRIDES_KEY)
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          this.overrides = {
+            added: parsed.added ?? [],
+            edited: parsed.edited ?? {},
+            deleted: parsed.deleted ?? [],
+          }
+        }
+      } catch {
+        /* ignore */
+      }
+    },
+
+    _saveOverrides() {
+      if (!import.meta.client) return
+      localStorage.setItem(OVERRIDES_KEY, JSON.stringify(this.overrides))
+    },
+
+    _compose() {
+      const { added, edited, deleted } = this.overrides
+      this.all = baseCache
+        .filter((m) => !deleted.includes(m.id))
+        .map((m) => edited[m.id] ?? m)
+        .concat(added)
+      this._buildState()
+    },
+
+    // ───────── مدیریت (پنل ادمین) ─────────
+    addMovie(data: Omit<Movie, 'id'>): Movie {
+      const id = Math.max(0, ...baseCache.map((m) => m.id), ...this.overrides.added.map((m) => m.id)) + 1
+      const movie: Movie = { ...data, id }
+      this.overrides.added.push(movie)
+      this._saveOverrides()
+      this._compose()
+      return movie
+    },
+
+    updateMovie(movie: Movie) {
+      const i = this.overrides.added.findIndex((m) => m.id === movie.id)
+      if (i !== -1) this.overrides.added[i] = movie
+      else this.overrides.edited[movie.id] = movie
+      this._saveOverrides()
+      this._compose()
+    },
+
+    deleteMovie(id: number) {
+      const i = this.overrides.added.findIndex((m) => m.id === id)
+      if (i !== -1) this.overrides.added.splice(i, 1)
+      else {
+        delete this.overrides.edited[id]
+        if (!this.overrides.deleted.includes(id)) this.overrides.deleted.push(id)
+      }
+      this._saveOverrides()
+      this._compose()
+    },
+
+    resetOverrides() {
+      this.overrides = { added: [], edited: {}, deleted: [] }
+      this._saveOverrides()
+      this._compose()
     },
 
     _buildState() {

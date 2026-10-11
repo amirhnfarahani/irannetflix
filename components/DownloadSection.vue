@@ -89,6 +89,7 @@ interface DownloadSource {
 
 const props = defineProps<{
   title: string
+  movieId?: number // برای ثبت در سابقه‌ی دانلودهای کاربر
   duration: number // دقیقه
   type?: 'movie' | 'series'
   // آدرس واحد (تست) یا لیست کامل لینک‌ها برای هر کیفیت
@@ -132,5 +133,6 @@ const items = computed(() =>
 
 function onDownload(item: { label: string }) {
   lastDownloaded.value = item.label
+  if (props.movieId != null) userStore.addDownload(props.movieId, item.label)
 }
 </script>

@@ -82,14 +82,49 @@
             </div>
             <ul class="py-1">
               <li>
-                <button class="w-full text-start px-4 py-2 text-sm text-text-secondary hover:bg-white/5 hover:text-white transition-colors">
-                  لیست من
-                </button>
+                <NuxtLink
+                  to="/panel"
+                  class="block w-full text-start px-4 py-2 text-sm text-text-secondary hover:bg-white/5 hover:text-white transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  پنل کاربری
+                </NuxtLink>
               </li>
               <li>
-                <button class="w-full text-start px-4 py-2 text-sm text-text-secondary hover:bg-white/5 hover:text-white transition-colors">
+                <NuxtLink
+                  to="/panel/watchlist"
+                  class="block w-full text-start px-4 py-2 text-sm text-text-secondary hover:bg-white/5 hover:text-white transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  لیست من
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink
+                  to="/panel/history"
+                  class="block w-full text-start px-4 py-2 text-sm text-text-secondary hover:bg-white/5 hover:text-white transition-colors"
+                  @click="showUserMenu = false"
+                >
                   تاریخچه تماشا
-                </button>
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink
+                  to="/panel/downloads"
+                  class="block w-full text-start px-4 py-2 text-sm text-text-secondary hover:bg-white/5 hover:text-white transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  دانلودها
+                </NuxtLink>
+              </li>
+              <li v-if="userStore.isAdmin">
+                <NuxtLink
+                  to="/admin"
+                  class="block w-full text-start px-4 py-2 text-sm text-gold hover:bg-white/5 transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  پنل مدیریت
+                </NuxtLink>
               </li>
               <li>
                 <button

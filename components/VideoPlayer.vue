@@ -22,6 +22,8 @@ export interface SubtitleTrack {
   default?: boolean
 }
 
+const emit = defineEmits<{ progress: [percent: number] }>()
+
 const props = withDefaults(
   defineProps<{
     src?: string
@@ -173,7 +175,6 @@ onMounted(async () => {
   videoEl = document.createElement('video')
   videoEl.setAttribute('playsinline', '')
   videoEl.preload = 'metadata'
-  if (props.title) videoEl.title = props.title
   if (props.backdrop) videoEl.poster = props.backdrop
   mountEl.value.appendChild(videoEl)
   addTracks()
@@ -181,6 +182,7 @@ onMounted(async () => {
 
   player = new Plyr(videoEl, {
     i18n,
+    title: props.title,
     controls: [
       'play-large',
       'rewind',
@@ -207,6 +209,16 @@ onMounted(async () => {
     storage: { enabled: true, key: 'iranflix_player' }, // حافظه‌ی صدا، سرعت و زیرنویس
     autoplay: props.autoplay,
   })
+
+  // گزارش پیشرفت تماشا (هر ۵ ثانیه) برای «ادامه‌ی تماشا» در پنل کاربری
+  let lastEmit = 0
+  player.on('timeupdate', () => {
+    const now = Date.now()
+    if (now - lastEmit < 5000 || !player.duration) return
+    lastEmit = now
+    emit('progress', Math.min(100, Math.round((player.currentTime / player.duration) * 100)))
+  })
+  player.on('ended', () => emit('progress', 100))
 
   window.addEventListener('keydown', onKeyDown)
   window.addEventListener('keyup', onKeyUp)

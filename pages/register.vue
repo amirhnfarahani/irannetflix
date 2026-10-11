@@ -194,13 +194,26 @@ async function submit() {
   }
   loading.value = true
   await new Promise(r => setTimeout(r, 800))
-  userStore.login(form.email, form.password)
+  const res = userStore.register({
+    name: form.name,
+    email: form.email,
+    password: form.password,
+    plan: selectedPlan.value === 'premium' ? 'premium' : 'free',
+  })
   loading.value = false
-  router.push('/')
+  if (!res.ok) {
+    error.value = res.error ?? 'ثبت‌نام ناموفق بود.'
+    return
+  }
+  router.push('/panel')
 }
 
 function loginWithGoogle() {
-  userStore.login('user@gmail.com', '')
-  router.push('/')
+  const res = userStore.loginWithGoogle()
+  if (!res.ok) {
+    error.value = res.error ?? 'ورود ناموفق بود.'
+    return
+  }
+  router.push('/panel')
 }
 </script>
