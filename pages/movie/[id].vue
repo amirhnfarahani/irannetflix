@@ -35,6 +35,7 @@
               :title="movie.title_fa" 
               :backdrop="movie.backdrop" 
               :subtitles="SUBTITLES"
+              @progress="(p) => userStore.addToHistory(movie.id, p)"
             />
 
             <div class="flex flex-wrap gap-3 mt-4">
@@ -78,6 +79,7 @@
             <DownloadSection
               class="mt-6"
               :title="movie.title_fa"
+              :movie-id="movie.id"
               :duration="movie.duration"
               :type="movie.type"
               :video-url="movieVideoUrl"

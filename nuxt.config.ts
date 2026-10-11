@@ -6,6 +6,13 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxt/image'],
   css: ['plyr/dist/plyr.css', '~/assets/css/main.css'],
+  // پنل‌ها فقط سمت کلاینت رندر می‌شوند (اطلاعات کاربر در مرورگر ذخیره می‌شود)
+  routeRules: {
+    '/panel': { ssr: false },
+    '/panel/**': { ssr: false },
+    '/admin': { ssr: false },
+    '/admin/**': { ssr: false },
+  },
   app: {
     head: {
       htmlAttrs: { lang: 'fa', dir: 'rtl' },

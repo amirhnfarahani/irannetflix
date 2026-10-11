@@ -21,6 +21,13 @@
           {{ error }}
         </div>
 
+        <!-- Demo accounts -->
+        <div class="bg-bg-card border border-white/10 rounded-lg px-4 py-3 mb-5 text-xs text-text-secondary leading-6">
+          <p class="font-semibold text-text-primary mb-1">حساب‌های آزمایشی</p>
+          <p>مدیر: <span class="font-inter" dir="ltr">admin@iranflix.ir</span> / <span class="font-inter">admin1234</span></p>
+          <p>کاربر: <span class="font-inter" dir="ltr">user@iranflix.ir</span> / <span class="font-inter">user1234</span></p>
+        </div>
+
         <!-- Form -->
         <div class="space-y-4">
           <div>
@@ -126,7 +133,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '../stores/user'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { reactive, ref} from 'vue'
 import { useHead } from 'nuxt/app'
 
@@ -134,6 +141,7 @@ useHead({ title: 'ورود - ایران‌فلیکس' })
 
 const userStore = useUserStore()
 const router = useRouter()
+const route = useRoute()
 
 const form = reactive({ email: '', password: '', remember: false })
 const loading = ref(false)
@@ -148,13 +156,30 @@ async function submit() {
   }
   loading.value = true
   await new Promise(r => setTimeout(r, 800))
-  userStore.login(form.email, form.password)
+  const res = userStore.login(form.email, form.password)
   loading.value = false
-  router.push('/')
+  if (!res.ok) {
+    error.value = res.error ?? 'ورود ناموفق بود.'
+    return
+  }
+  goNext()
+}
+
+function goNext() {
+  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+  if (redirect.startsWith('/') && !redirect.startsWith('//')) {
+    router.push(redirect)
+    return
+  }
+  router.push(userStore.isAdmin ? '/admin' : '/')
 }
 
 function loginWithGoogle() {
-  userStore.login('user@gmail.com', '')
-  router.push('/')
+  const res = userStore.loginWithGoogle()
+  if (!res.ok) {
+    error.value = res.error ?? 'ورود ناموفق بود.'
+    return
+  }
+  goNext()
 }
 </script>
