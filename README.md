@@ -1,4 +1,4 @@
-# ایران‌فلیکس (IranFlix)
+# ایران‌نتفلیکس (IranFlix)
 
 پلتفرم نمایش فیلم و سریال ساخته‌شده با Nuxt 3، Pinia و Tailwind CSS.
 
