@@ -58,7 +58,7 @@
               <button
                 type="button"
                 :aria-label="showPass ? 'مخفی کردن رمز' : 'نمایش رمز'"
-                class="absolute inset-y-0 start-3 flex items-center text-text-muted hover:text-text-secondary transition-colors"
+                class="absolute inset-y-0 end-3 flex items-center text-text-muted hover:text-text-secondary transition-colors"
                 @click="showPass = !showPass"
               >
                 <svg v-if="!showPass" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -90,7 +90,7 @@
         </div>
 
         <!-- Divider -->
-        <div class="flex items-center gap-3 my-6">
+        <div class="flex items-center gap-3 my-4">
           <div class="flex-1 h-px bg-white/10"></div>
           <span class="text-text-muted text-xs font-vazir">یا</span>
           <div class="flex-1 h-px bg-white/10"></div>
